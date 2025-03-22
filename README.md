@@ -65,7 +65,10 @@ plugins: [
 ### @ 별칭
 
 ```ts
+// 별칭 미사용
 import idea from '../../../featrues/idea'
+
+// 별칭 사용
 import idea from '@/featrues/idea'
 ```
 
@@ -73,7 +76,7 @@ import idea from '@/featrues/idea'
 
 별칭 추가 시 다음을 수정해야 합니다
 - `tsconfig.json` : "compilerOptions.paths" 에 별칭 추가
-- `rollup.config.js` : `dts` 내의 옵션에서 `tsconfig.json`에서 한 것과 동일하게 변경
+- `rollup.config.js` : `dts()` 내의 옵션에서 `tsconfig.json`에서 한 것과 동일하게 변경
 - `jest.config.ts` : "moduleNameMapper" 에 별칭 추가
 
 ### jest 단위테스트 프레임워크
@@ -88,15 +91,11 @@ describe('testsuite', ()=>{
 });
 ```
 
-테스트 코드를 작성하고 `yarn test` 를 통해 단위 테스트를 수행할 수 있음
+테스트 코드를 작성하고 `yarn test` 를 통해 단위 테스트를 수행할 수 있습니다
 
 ### CommonJS/ESM 대응
 
-`cjs`, `mjs`로 각각 번들링해 두 모듈 시스템에 모두 호환됨
+`cjs`, `mjs`로 각각 번들링해 두 모듈 시스템이 모두 호환됩니다
 
-`d.ts` 도 함께 익스포트됨
+`d.ts` 도 함께 내보내게 됩니다
  
-### .npmignore
-
-빌드 후 `npm publish --public` 를 통해 필요한 파일만 npm으로 배포 수행
-
