@@ -1,5 +1,7 @@
+src/
 tsconfig.json
-src
-playground
+rollup.config.js
+package-lock.json
+yarn.lock
 .env
 .vscode

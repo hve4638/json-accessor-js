@@ -2,7 +2,6 @@
     "compilerOptions": {
         "isolatedModules": true,
         "moduleResolution": "node10",
-        
         "target": "es2022",
         
         "forceConsistentCasingInFileNames": true, /* 대소문자 구분 규칙 */
@@ -19,11 +18,8 @@
         "noImplicitOverride" : true, // 명시적 메서드 오버라이드
         "allowUnreachableCode" : true, // 도달할 수 없는 코드 허용
 
-        "importHelpers": true, /* Import emit helpers from 'tslib'. */
-        "skipLibCheck": true, /* Skip type checking all .d.ts files. */
-        // "declaration": true,
-        // "declarationDir": "./dist",
-        // "declarationMap": false,
+        "importHelpers": true,
+        "skipLibCheck": true,
         
         "outDir" : "./dist",
         "baseUrl": "./",
