@@ -5,8 +5,11 @@ node_modules/
 package-lock.json
 yarn.lock
 
-# build output
+# output
 dist/
+
+# test
+coverage/
 
 # misc
 .npmrc

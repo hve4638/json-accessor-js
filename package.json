@@ -32,6 +32,6 @@
   "scripts": {
     "build": "rollup -c",
     "test": "jest",
-    "publish-public": "npm publish --access=public"
+    "coverage": "jest --coverage"
   }
 }

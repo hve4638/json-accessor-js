@@ -1,7 +1,11 @@
-src/
-tsconfig.json
-rollup.config.js
-package-lock.json
-yarn.lock
 .env
 .vscode
+
+src/
+coverage/
+
+tsconfig.json
+rollup.config.js
+jest.config.ts
+
+*.tgz
