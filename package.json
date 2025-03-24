@@ -1,5 +1,5 @@
 {
-  "name": "YOUR_PACKAGE_NAME",
+  "name": "@hve/json-accessor",
   "version": "1.0.0",
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.mjs",
@@ -33,5 +33,6 @@
     "build": "rollup -c",
     "test": "jest",
     "coverage": "jest --coverage"
-  }
+  },
+  "dependencies": {}
 }
