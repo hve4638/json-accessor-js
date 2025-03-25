@@ -7,11 +7,6 @@ export type JSONTree = {
 }
 
 export interface IJSONAccessor {
-    get jsonStructure():JSONTree|null;
-    
-    loadData():void;
-    hasExistingData():boolean;
-
     set(items:KeyValueInput):string[];
     setOne(key:string, value:any):void;
     get(...keys:string[]):Record<string,any>;
@@ -24,7 +19,9 @@ export interface IJSONAccessor {
     // pushToArray(items:KeyValueInput):string[];
     // pushOneToArray(key:string, value:any):void;
     
-    commit():void;
+    hasExistingData():Promise<boolean>;
+    load():void;
+    save():void;
     drop():void;
     get dropped():boolean;
 }

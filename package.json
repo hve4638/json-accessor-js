@@ -34,5 +34,7 @@
     "test": "jest",
     "coverage": "jest --coverage"
   },
-  "dependencies": {}
+  "dependencies": {
+    "tree-navigate": "^0.1.2"
+  }
 }

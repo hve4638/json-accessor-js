@@ -1,4 +1,3 @@
-import { JSONTree } from 'types/json';
 import BaseJSONType from './BaseJSONTypeLeaf';
 
 export class AnyJSONTypeLeaf extends BaseJSONType {
@@ -11,6 +10,5 @@ export class AnyJSONTypeLeaf extends BaseJSONType {
         return this;
     }
 }
-
 
 export default AnyJSONTypeLeaf;
