@@ -12,12 +12,12 @@ export default [
           {
               file: 'dist/bundle.cjs',
               format: 'cjs',
-              sourcemap: false,
+              sourcemap: true,
           },
           {
               file: 'dist/bundle.mjs',
               format: 'es',
-              sourcemap: false,
+              sourcemap: true,
           },
       ],
       plugins: [
@@ -25,7 +25,7 @@ export default [
           commonjs(),
           json(),
           typescript({ tsconfig: './tsconfig.json' }),
-          terser(),
+        //   terser(),
       ],
   },
   {

@@ -244,13 +244,13 @@ class ObjectFlatter {
         if (!isDataTypeCompatible(value, typeData)) {
             const typeName = getJSONTypeName(value);
             if (typeName == null) {
-                throw new JSONAccessorError(`Invalid data type: ${typeof value} in '${key}'`);
+                throw new JSONAccessorError(`Invalid data type: ${typeName} in '${key}'`);
             }
             else if (typeName === 'null') {
                 throw new JSONAccessorError(`Field '${key}' is not nullable`);
             }
             else {
-                throw new JSONAccessorError(`Field '${key}' must be a '${typeData.type}' but ${typeof value}}`);
+                throw new JSONAccessorError(`Field '${key}' must be a '${typeData.type}' but ${typeName}`);
             }
         }
     }

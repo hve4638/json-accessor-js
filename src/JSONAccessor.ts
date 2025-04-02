@@ -13,7 +13,8 @@ class JSONAccessor implements IJSONAccessor {
     protected filePath:string;
     protected explorer:TreeNavigate<JSONTypeData>|null = null;
     protected contents:Record<string, any>;
-    protected jsonFS:IJSONFS = new JSONFS()
+    protected jsonFS:IJSONFS|undefined = new JSONFS()
+    #tree:JSONTree|null = null;
     #flatter:ObjectFlatter;
     #isDropped:boolean = false;
     #changed:boolean = true;
@@ -22,6 +23,7 @@ class JSONAccessor implements IJSONAccessor {
         this.filePath = filePath;
         this.contents = {};
         if (tree) {
+            this.#tree = tree;
             this.explorer = TreeNavigate.from(tree, { delimiter: '.', allowWildcard: true, allowRecursiveWildcard : false });
             this.#flatter = new ObjectFlatter(this.explorer);
         }
@@ -30,8 +32,12 @@ class JSONAccessor implements IJSONAccessor {
         }
     }
 
+    get tree() {
+        return this.#tree;
+    }
+
     async load() {
-        this.contents = await this.jsonFS.read(this.filePath);
+        this.contents = await this.jsonFS?.read(this.filePath) ?? {};
     }
     async save(force:boolean=false) {
         this.#ensureNotDropped();
@@ -39,20 +45,20 @@ class JSONAccessor implements IJSONAccessor {
             return;
         }
         this.#changed = false;
-        await this.jsonFS.write(this.filePath, this.contents);
+        await this.jsonFS?.write(this.filePath, this.contents);
     }
     async drop() {
         if (this.dropped) return;
 
         this.#isDropped = true;
-        await this.jsonFS.rm(this.filePath);
+        await this.jsonFS?.rm(this.filePath);
     }
     get dropped() {
         return this.#isDropped;
     }
     
     async hasExistingData() {
-        return await this.jsonFS.exists(this.filePath);
+        return await this.jsonFS?.exists(this.filePath) ?? false;
     }
 
     setOne(key:string, value:any):void {

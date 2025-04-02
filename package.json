@@ -1,6 +1,6 @@
 {
   "name": "@hve/json-accessor",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "main": "./dist/bundle.cjs",
   "module": "./dist/bundle.mjs",
   "types": "./dist/index.d.ts",
@@ -35,6 +35,6 @@
     "coverage": "jest --coverage"
   },
   "dependencies": {
-    "tree-navigate": "^0.1.2"
+    "tree-navigate": "^0.3.0"
   }
 }

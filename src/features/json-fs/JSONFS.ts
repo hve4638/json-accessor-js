@@ -26,9 +26,9 @@ class JSONFS implements IJSONFS {
     }
     async rm(filename:string) {
         try {
-            await fs.rm(filename, { force: true });
+            await fs.rm(filename);
         } catch (error) {
-            console.warn(`Failed to remove file ${filename}:`, error);
+            
         }
     }
     async exists(filename:string) {
