@@ -12,7 +12,7 @@ class BaseJSONTypeLeaf {
             type,
             default_value : undefined,
             nullable : false
-        }
+        } as JSONTypeData
     }
 
     nullable() {

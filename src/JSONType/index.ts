@@ -5,6 +5,7 @@ import BaseJSONType from './BaseJSONTypeLeaf';
 import { JSONTree } from '@/types';
 import { JSON_TYPE_FLAG } from './data';
 import { JSONTypeData } from './types';
+import UnionJSONTypeLeaf from './UnionJSONTypeLeaf';
 export type { JSONTypeNames, JSONTypeData } from './types';
 
 export function isJSONTypeData(target:object):target is JSONTypeData {
@@ -12,6 +13,7 @@ export function isJSONTypeData(target:object):target is JSONTypeData {
 }
 
 const JSONType = {
+    Union : (...candidates:(string|number|boolean|null|undefined|BaseJSONType)[]) => new UnionJSONTypeLeaf(...candidates),
     String : () => new StringJSONTypeLeaf(),
     Number : () => new NumberJSONTypeLeaf(),
     Bool : () => new BooleanJSONTypeLeaf(),

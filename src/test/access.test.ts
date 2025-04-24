@@ -49,13 +49,62 @@ describe('JSONAccessor : key type', () => {
 
     testcases.forEach((testcase) => {
         testcase.allowedValues.forEach((allowed) => {
-            test(`setOne ${testcase.key}-${allowed}`, () => {
+            test(`> setOne ${testcase.key}-${allowed} (allowed)`, () => {
                 accessor.setOne(testcase.key, allowed);
                 expect(accessor.getOne(testcase.key)).toBe(allowed);
             });
         });
         testcase.deniedValues.forEach((denied) => {
-            test(`setOne ${testcase.key}-${JSON.stringify(denied)}`, () => {
+            test(`> setOne ${testcase.key}-${JSON.stringify(denied)} (denied)`, () => {
+                expect(() => accessor.setOne(testcase.key, denied)).toThrow(); 
+            });
+        });
+    });
+});
+
+describe('JSONAccessor : union type', () => {
+    let accessor:MemJSONAccessor;
+
+    type TC_KEY = {
+        key:string,
+        allowedValues:any[],
+        deniedValues:any[],
+    }
+    
+    const testcases:TC_KEY[] = [
+        {
+            key : 'multitype',
+            allowedValues : [0, 1, 2, '1', '2', '3', true, false],
+            deniedValues : [[], {}],
+        },
+        {
+            key : 'number',
+            allowedValues : [1, 2, 3],
+            deniedValues : [4, 5, '1', '2', '3', true, false, [], {}],
+        },
+        {
+            key : 'string',
+            allowedValues : ['1', '2', '3'],
+            deniedValues : [1, 2, 3, '4', '5', true, false, [], {}],
+        },
+    ]
+    beforeEach(() => {
+        accessor = new MemJSONAccessor({
+            multitype : JSONType.Union(JSONType.Number(), JSONType.String(), JSONType.Bool()),
+            number : JSONType.Union(1, 2, 3),
+            string : JSONType.Union('1', '2', '3'),
+        });
+    });
+
+    testcases.forEach((testcase) => {
+        testcase.allowedValues.forEach((allowed) => {
+            test(`> setOne ${testcase.key}-${allowed} (allowed)`, () => {
+                accessor.setOne(testcase.key, allowed);
+                expect(accessor.getOne(testcase.key)).toBe(allowed);
+            });
+        });
+        testcase.deniedValues.forEach((denied) => {
+            test(`> setOne ${testcase.key}-${JSON.stringify(denied)} (denied)`, () => {
                 expect(() => accessor.setOne(testcase.key, denied)).toThrow(); 
             });
         });
@@ -281,6 +330,59 @@ describe('JSONAccessor : object access', () => {
                 }
             }
         );
+    });
+});
+
+
+describe('JSONAccessor : array access', () => {
+    let accessor:MemJSONAccessor;
+    
+    beforeEach(() => {
+        accessor = new MemJSONAccessor({
+            array : JSONType.Array({
+                id : JSONType.Number(),
+                name : JSONType.String(),
+            })
+        });
+    });
+
+    test('set - validate', () => {
+        accessor.set([
+            [
+                'array',
+                [
+                    { id : 1, name : 'a', },
+                    { id : 2, name : 'b', },
+                ]
+            ]
+        ]);
+
+        expect(
+            accessor.getOne('array')
+        ).toEqual([
+            { id : 1, name : 'a', },
+            { id : 2, name : 'b', },
+        ]);
+    });
+    test('set - validate', () => {
+        accessor.set([
+            [
+                'array',
+                [
+                    { id : 1, name : 'a', },
+                    { id : 2, name : 'b', value : 1 },
+                    1,
+                ]
+            ]
+        ]);
+
+        expect(
+            accessor.getOne('array')
+        ).toEqual([
+            { id : 1, name : 'a', },
+            { id : 2, name : 'b', value : 1 },
+            1
+        ]);
     });
 });
 

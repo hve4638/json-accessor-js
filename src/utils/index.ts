@@ -17,20 +17,33 @@ export function getJSONTypeName(value:string):JSONTypeNames|null {
     }
 }
 
-export function isDataTypeCompatible(target:string, jsonTypeData:JSONTypeData):boolean {
-    const targetType = getJSONTypeName(target);
+export function isDataTypeCompatible(target:string, jsonTypeData:JSONTypeData|string|number|boolean):boolean {
+    if (typeof jsonTypeData === 'object') {
+        const targetType = getJSONTypeName(target);
 
-    if (targetType === null) {
-        return false;
-    }
-    if (targetType === 'null') {
-        return jsonTypeData.nullable;
-    }
-    else if (jsonTypeData.type === 'any') {
-        return true;
+        if (targetType === null) {
+            return false;
+        }
+        else if (targetType === 'null') {
+            return jsonTypeData.nullable;
+        }
+        else if (jsonTypeData.type === 'any') {
+            return true;
+        }
+        else if (jsonTypeData.type === 'union') {
+            for (const candidate of jsonTypeData.candidates) {
+                if (isDataTypeCompatible(target, candidate)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            return (targetType === jsonTypeData.type);
+        }
     }
     else {
-        return (targetType === jsonTypeData.type);
+        return target === jsonTypeData;
     }
 }
 

@@ -180,7 +180,7 @@ class ObjectFlatter {
             }
         });
     }
-
+    
     #flatWithoutNavigate({ target, prefix }:FlatWithoutNavigateArgs): [string, any][] {
         return Object.entries(target).flatMap(([key, value]) => {
             const newKey = ObjectFlatter.#joinKey(prefix, key);
