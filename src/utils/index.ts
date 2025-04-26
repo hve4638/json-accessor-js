@@ -1,6 +1,6 @@
 import { JSONTypeData, JSONTypeNames } from '@/JSONType';
 
-export function getJSONTypeName(value:string):JSONTypeNames|null {
+function getJSONTypeName(value:string):JSONTypeNames|null {
     if (value === null) 'null';
     if (Array.isArray(value)) return 'array';
 
@@ -17,7 +17,7 @@ export function getJSONTypeName(value:string):JSONTypeNames|null {
     }
 }
 
-export function isDataTypeCompatible(target:string, jsonTypeData:JSONTypeData|string|number|boolean):boolean {
+export function  isDataTypeCompatible(target:string, jsonTypeData:JSONTypeData|string|number|boolean):boolean {
     if (typeof jsonTypeData === 'object') {
         const targetType = getJSONTypeName(target);
 
@@ -75,4 +75,8 @@ export function resolveNestedRef(contents:Record<string,any>, target:string, cre
         parent: ref,
         key : keys[size],
     }
+}
+
+export function isObject(value:any): value is object {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

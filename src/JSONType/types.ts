@@ -14,13 +14,18 @@ export type PrimitiveJSONTypeData = BaseJSONTypeData & {
 }
 export type ArrayJSONTypeData = BaseJSONTypeData & {
     type : 'array',
-    struct? : JSONTree,
+    
+    element? : JSONTypeData,
+
+    strict : boolean,
     nullable : boolean,
     default_value : unknown,
 }
 export type StructJSONTypeData = {
     type : 'struct',
     struct? : JSONTree,
+    
+    strict : boolean,
     nullable : boolean,
     default_value : unknown,
 }

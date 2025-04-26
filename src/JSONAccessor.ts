@@ -4,7 +4,7 @@ import TreeNavigate from 'tree-navigate';
 import { IJSONAccessor, JSONTree, KeyValueInput } from '@/types';
 import { JSONAccessorError } from '@/errors';
 import JSONType, { isJSONTypeData, JSONTypeData, JSONTypeNames } from '@/JSONType';
-import ObjectFlatter from '@/features/object-flatter';
+import ObjectFlatter from '@/features/schema-flattener';
 import { resolveNestedRef } from './utils';
 import { IJSONFS, JSONFS } from '@/features/json-fs';
 

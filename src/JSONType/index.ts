@@ -9,7 +9,11 @@ import UnionJSONTypeLeaf from './UnionJSONTypeLeaf';
 export type { JSONTypeNames, JSONTypeData } from './types';
 
 export function isJSONTypeData(target:object):target is JSONTypeData {
-    return target != null && typeof target === 'object' && target[JSON_TYPE_FLAG] === true;
+    return (
+        target != null &&
+        typeof target === 'object' &&
+        target[JSON_TYPE_FLAG] === true
+    );
 }
 
 const JSONType = {
@@ -17,8 +21,8 @@ const JSONType = {
     String : () => new StringJSONTypeLeaf(),
     Number : () => new NumberJSONTypeLeaf(),
     Bool : () => new BooleanJSONTypeLeaf(),
-    Struct : () => new JSONTypeObject(),
-    Array : (jsonTree?:JSONTree) => new JSONTypeArray(jsonTree),
+    Struct : (tree?:JSONTree) => new JSONTypeObject(tree),
+    Array : (jsonTree?:JSONTree|BaseJSONType) => new JSONTypeArray(jsonTree),
     Any : () => new BaseJSONType('any'),
 };
 export type JSONTypeLeaf = StringJSONTypeLeaf | NumberJSONTypeLeaf | BooleanJSONTypeLeaf | JSONTypeObject | JSONTypeArray | BaseJSONType;

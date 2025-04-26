@@ -26,3 +26,5 @@ export interface IJSONAccessor {
     drop():Promise<void>;
     get dropped():boolean;
 }
+
+export type FlattenData = [string, unknown][];
