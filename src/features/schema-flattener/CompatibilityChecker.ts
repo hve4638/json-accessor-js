@@ -1,7 +1,7 @@
 import { JSONTypeData } from '@/JSONType';
-import { JSONAccessorError } from '@/errors';
+import { IncompatibleTypeError, JSONAccessorError, UnserializableTypeError } from '@/errors';
 import { getJSONTypeName } from './utils';
-import { ArrayJSONTypeData, StructJSONTypeData } from '@/JSONType/types';
+import { ArrayJSONTypeData, StructJSONTypeData, UnionJSONTypeData } from '@/JSONType/types';
 import { Flattener } from './Flattener';
 import TreeNavigate from 'tree-navigate';
 import { ICompatibilityChecker } from './types';
@@ -15,16 +15,21 @@ class CompatibilityChecker implements ICompatibilityChecker {
         if (!this.isCompatible(value, typeData)) {
             const typeName = getJSONTypeName(value);
             if (typeName == null) {
-                throw new JSONAccessorError(`Invalid data type: ${typeName} in '${key}'`);
+                throw new UnserializableTypeError(key, value);
             }
             else if (typeName === 'null') {
-                throw new JSONAccessorError(`Field '${key}' is not nullable`);
+                throw new IncompatibleTypeError(`Incompatible type for field '${key}': expected '${typeData.type}' and not nullable, received null`);
             }
             else if (typeName === 'array' && typeData.type === 'array') {
-                throw new JSONAccessorError(`Field '${key}' array structure is incompatible`);
+                throw new IncompatibleTypeError(`Incompatible array structure for field '${key}'`);
+            }
+            else if (typeData.type === 'union') {
+                const expected = this.getUnionTypeNames(typeData as UnionJSONTypeData);
+                
+                throw new IncompatibleTypeError(`Incompatible type for field '${key}': expected one of (${expected.join(' | ')}), received ${value} ('${typeName}')`);
             }
             else {
-                throw new JSONAccessorError(`Field '${key}' must be a '${typeData.type}' but '${typeName}'`);
+                throw new IncompatibleTypeError(`Incompatible type for field '${key}': expected '${typeData.type}', received '${typeName}'`);
             }
         }
     }
@@ -39,11 +44,11 @@ class CompatibilityChecker implements ICompatibilityChecker {
             if (targetType === null) {
                 return false;
             }
-            else if (targetType === 'null') {
-                return jsonTypeData.nullable;
-            }
             else if (jsonTypeData.type === 'any') {
                 return true;
+            }
+            else if (targetType === 'null') {
+                return jsonTypeData.nullable;
             }
             else if (jsonTypeData.type === 'union') {
                 for (const candidate of jsonTypeData.candidates) {
@@ -94,6 +99,17 @@ class CompatibilityChecker implements ICompatibilityChecker {
         catch (e) {
             return false;
         }
+    }
+
+    private getUnionTypeNames(union: UnionJSONTypeData): string[] {
+        return union.candidates.map((c)=>{
+            if (typeof c === 'object') {
+                return c.type;
+            }
+            else {
+                return c.toString();
+            }
+        });
     }
 }
 

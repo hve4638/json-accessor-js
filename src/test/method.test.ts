@@ -48,3 +48,24 @@ describe('JSONAccessor : method', () => {
     });
 
 });
+
+describe('JSONAccessor : default_value', () => {
+    let accessor:MemJSONAccessor;
+    
+    beforeEach(() => {
+        accessor = new MemJSONAccessor({
+            number : JSONType.Number(),
+            numberN : JSONType.Number().nullable(),
+            numberD : JSONType.Number().default_value(1),
+            numberND : JSONType.Number().nullable().default_value(1),
+        });
+    });
+
+    test('default_value 2', () => {
+        expect(accessor.getOne('number')).toEqual(undefined);
+        expect(accessor.getOne('numberN')).toEqual(undefined);
+        expect(accessor.getOne('numberD')).toEqual(1);
+        expect(accessor.getOne('numberND')).toEqual(1);
+
+    });
+});

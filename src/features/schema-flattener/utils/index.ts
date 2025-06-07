@@ -5,7 +5,7 @@ export function concatDotPath(prefix:string|undefined, key:string) {
 }
 
 export function getJSONTypeName(value:unknown):JSONTypeNames|null {
-    if (value === null) 'null';
+    if (value == null) return 'null';
     if (Array.isArray(value)) return 'array';
 
     const typeName = typeof value;
