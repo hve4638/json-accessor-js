@@ -87,16 +87,31 @@ class JSONAccessor implements IJSONAccessor {
     }
     getOne(key:string):any {
         this.#ensureNotDropped();
+
+        let value = this.#getData(key); 
+        const typeData = this.explorer?.get(key)
         
-        return this.#getData(key);
+        if (value == null) {
+            if (typeData && typeData.default_value != null) {
+                value = typeData.default_value;
+            }
+        }
+        
+        return value;
     }
     get(...keys:string[]):Record<string,any> {
         this.#ensureNotDropped();
         
         const result:Record<string,any> = {};
         for (const key of keys) {
-            const value = this.#getData(key);
+            let value = this.#getData(key);
 
+            if (value == null) {
+                const typeData = this.explorer?.get(key)
+                if (typeData && typeData.default_value != null) {
+                    value = typeData.default_value;
+                }
+            }
             const resolved = resolveNestedRef(result, key, true)!;
             resolved.parent[resolved.key] = value;
         }

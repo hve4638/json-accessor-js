@@ -51,7 +51,7 @@ export class Flattener {
                         prefix : key,
                         structData : node,
                     });
-                }
+                } 
 
                 return [[key, value]];
             }
