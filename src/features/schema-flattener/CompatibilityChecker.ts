@@ -1,10 +1,13 @@
-import { JSONTypeData } from '@/JSONType';
-import { IncompatibleTypeError, JSONAccessorError, UnserializableTypeError } from '@/errors';
-import { getJSONTypeName } from './utils';
-import { ArrayJSONTypeData, StructJSONTypeData, UnionJSONTypeData } from '@/JSONType/types';
-import { Flattener } from './Flattener';
 import TreeNavigate from 'tree-navigate';
+
+import { JSONTypeData } from '@/features/JSONType';
+import { ArrayJSONTypeData, StructJSONTypeData, UnionJSONTypeData } from '@/features/JSONType/types';
+import { IncompatibleTypeError, JSONAccessorError, UnserializableTypeError } from '@/errors';
+
+import { Flattener } from './Flattener';
+import { getJSONTypeName } from './utils';
 import { ICompatibilityChecker } from './types';
+
 
 class CompatibilityChecker implements ICompatibilityChecker {
     constructor() {
@@ -25,7 +28,7 @@ class CompatibilityChecker implements ICompatibilityChecker {
             }
             else if (typeData.type === 'union') {
                 const expected = this.getUnionTypeNames(typeData as UnionJSONTypeData);
-                
+
                 throw new IncompatibleTypeError(`Incompatible type for field '${key}': expected one of (${expected.join(' | ')}), received ${value} ('${typeName}')`);
             }
             else {
@@ -34,7 +37,9 @@ class CompatibilityChecker implements ICompatibilityChecker {
         }
     }
 
-    private isCompatible(target: unknown, jsonTypeData: JSONTypeData|string|number|boolean): boolean {
+    private isCompatible(target: unknown, jsonTypeData: JSONTypeData | string | number | boolean): boolean {
+        // jsonTypeData 타입이 primitive 인 경우
+        // union 타입 검사 시 isCompatible() 가 다시 호출된 경우 발생
         if (typeof jsonTypeData !== 'object') {
             return target === jsonTypeData;
         }
@@ -74,10 +79,9 @@ class CompatibilityChecker implements ICompatibilityChecker {
         }
     }
 
-    private isArrayCompatible(array:unknown[], arrayTypeData: ArrayJSONTypeData):boolean {
-        if (!arrayTypeData.strict) return true;
-        if (!arrayTypeData.element) return true;
-        
+    private isArrayCompatible(array: unknown[], arrayTypeData: ArrayJSONTypeData): boolean {
+        if (!arrayTypeData.strict || !arrayTypeData.element) return true;
+
         for (const ele of array) {
             if (!this.isCompatible(ele, arrayTypeData.element)) {
                 return false;
@@ -86,23 +90,23 @@ class CompatibilityChecker implements ICompatibilityChecker {
         return true;
     }
 
-    private isStructCompatible(struct:object, structTypeData: StructJSONTypeData):boolean {
+    private isStructCompatible(struct: object, structTypeData: StructJSONTypeData): boolean {
         if (!structTypeData.strict) return true;
         if (!structTypeData.struct) return true;
 
         const navigate = TreeNavigate.from(structTypeData.struct);
         const flattener = new Flattener(navigate, this);
         try {
-            flattener.flat({ target : struct, prefix : '' });
+            flattener.flat({ target: struct, prefix: '' });
             return true;
-        }   
+        }
         catch (e) {
             return false;
         }
     }
 
     private getUnionTypeNames(union: UnionJSONTypeData): string[] {
-        return union.candidates.map((c)=>{
+        return union.candidates.map((c) => {
             if (typeof c === 'object') {
                 return c.type;
             }

@@ -1,4 +1,4 @@
-import JSONType from '@/JSONType';
+import JSONType from '@/features/JSONType';
 import MemJSONAccessor from '@/MemJSONAccessor';
 
 describe('JSONAccessor : key type', () => {

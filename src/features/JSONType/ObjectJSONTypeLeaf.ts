@@ -14,7 +14,7 @@ export class StructJSONTypeLeaf extends BaseJSONType {
     strict() {
         this.value['strict'] = true;
         return this;
-    }
+    } 
 }
 
 export default StructJSONTypeLeaf;

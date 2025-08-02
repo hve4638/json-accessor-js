@@ -1,8 +1,8 @@
 import { IncompatibleTypeError } from '@/errors';
-import JSONType from '@/JSONType';
+import JSONType from '@/features/JSONType';
 import MemJSONAccessor from '@/MemJSONAccessor';
 
-describe('JSONAccessor : key type', () => {
+describe('key type', () => {
     let accessor:MemJSONAccessor;
 
     beforeEach(() => {
@@ -32,5 +32,39 @@ describe('JSONAccessor : key type', () => {
         expect(()=>accessor.setOne('boolean', undefined)).toThrow(IncompatibleTypeError);
         expect(()=>accessor.setOne('array', undefined)).toThrow(IncompatibleTypeError);
         expect(()=>accessor.setOne('object', undefined)).toThrow(IncompatibleTypeError);
+    });
+});
+
+
+describe('nullable', () => {
+    let accessor:MemJSONAccessor;
+
+    beforeEach(() => {
+        accessor = new MemJSONAccessor({
+            string : JSONType.String().nullable(),
+            number : JSONType.Number().nullable(),
+            boolean : JSONType.Bool().nullable(),
+            array : JSONType.Array().nullable(),
+            object : JSONType.Struct().nullable(),
+            any : JSONType.Any(),
+        });
+    });
+
+    test('set null', () => {
+        accessor.setOne('any', null);
+        accessor.setOne('string', null)
+        accessor.setOne('number', null);
+        accessor.setOne('boolean', null);
+        accessor.setOne('array', null);
+        accessor.setOne('object', null);
+    });
+
+    test('set undefined', () => {
+        accessor.setOne('any', undefined);
+        accessor.setOne('string', undefined);
+        accessor.setOne('number', undefined);
+        accessor.setOne('boolean', undefined);
+        accessor.setOne('array', undefined);
+        accessor.setOne('object', undefined);
     });
 });

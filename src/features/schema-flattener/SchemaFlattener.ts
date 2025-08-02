@@ -1,5 +1,5 @@
 import TreeNavigate from 'tree-navigate';
-import { JSONTypeData } from '@/JSONType';
+import { JSONTypeData } from '@/features/JSONType';
 import { Flattener } from './Flattener';
 import CompatibilityChecker from './CompatibilityChecker';
 
@@ -12,14 +12,14 @@ class SchemaFlattener {
         this.flattener = new Flattener(navigate, this.checker);
     }
 
-    flat(target: Record<string, any>):[string, any][] {
+    flat(target: Record<string, any>): [string, any][] {
         return this.flattener.flat({
             target,
-            prefix : '',
+            prefix: '',
         });
     }
 
-    transform(data:[string, any][]):[string, any][] {
+    transform(data: [string, any][]): [string, any][] {
         return data.flatMap(([key, value]) => {
             return this.flattener.transform(key, value);
         });

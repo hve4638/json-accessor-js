@@ -1,34 +1,37 @@
-import * as fs from 'node:fs';
 import TreeNavigate from 'tree-navigate';
 
 import { IJSONAccessor, JSONTree, KeyValueInput } from '@/types';
 import { JSONAccessorError } from '@/errors';
-import JSONType, { isJSONTypeData, JSONTypeData, JSONTypeNames } from '@/JSONType';
+import JSONType, { isJSONTypeData, JSONTypeData, JSONTypeNames } from '@/features/JSONType';
 import ObjectFlatter from '@/features/schema-flattener';
 import { resolveNestedRef } from './utils';
 import { IJSONFS, JSONFS } from '@/features/json-fs';
+import DefaultValueProvider from './features/default-value-provider';
 
 class JSONAccessor implements IJSONAccessor {
     static anyJSONType = JSONType.Any().nullable().value;
-    protected filePath:string;
-    protected explorer:TreeNavigate<JSONTypeData>|null = null;
-    protected contents:Record<string, any>;
-    protected jsonFS:IJSONFS|undefined = new JSONFS()
-    #tree:JSONTree|null = null;
-    #flatter:ObjectFlatter;
-    #isDropped:boolean = false;
-    #changed:boolean = true;
-    
-    constructor(filePath:string, tree:JSONTree|null=null) {
+    protected filePath: string;
+    protected explorer: TreeNavigate<JSONTypeData> | null = null;
+    protected contents: Record<string, any>;
+    protected jsonFS: IJSONFS | undefined = new JSONFS()
+    #tree: JSONTree | null = null;
+    #flatter: ObjectFlatter;
+    #defaultValueProvider: DefaultValueProvider;
+    #isDropped: boolean = false;
+    #changed: boolean = true;
+
+    constructor(filePath: string, tree: JSONTree | null = null) {
         this.filePath = filePath;
         this.contents = {};
         if (tree) {
             this.#tree = tree;
-            this.explorer = TreeNavigate.from(tree, { delimiter: '.', allowWildcard: true, allowRecursiveWildcard : false });
+            this.explorer = TreeNavigate.from(tree, { delimiter: '.', allowWildcard: true, allowRecursiveWildcard: false });
             this.#flatter = new ObjectFlatter(this.explorer);
+            this.#defaultValueProvider = new DefaultValueProvider(this.explorer);
         }
         else {
             this.#flatter = new ObjectFlatter();
+            this.#defaultValueProvider = new DefaultValueProvider();
         }
     }
 
@@ -39,7 +42,7 @@ class JSONAccessor implements IJSONAccessor {
     async load() {
         this.contents = await this.jsonFS?.read(this.filePath) ?? {};
     }
-    async save(force:boolean=false) {
+    async save(force: boolean = false) {
         this.#ensureNotDropped();
         if (!this.#changed && !force) {
             return;
@@ -56,21 +59,21 @@ class JSONAccessor implements IJSONAccessor {
     get dropped() {
         return this.#isDropped;
     }
-    
+
     async hasExistingData() {
         return await this.jsonFS?.exists(this.filePath) ?? false;
     }
 
-    setOne(key:string, value:any):void {
+    setOne(key: string, value: any): void {
         this.#ensureNotDropped();
-        
+
         this.set([[key, value]]);
     }
-    set(data: KeyValueInput):string[] {
+    set(data: KeyValueInput): string[] {
         this.#ensureNotDropped();
         this.#changed = true;
 
-        let setterList:[string, any][] = [];
+        let setterList: [string, any][] = [];
         if (Array.isArray(data)) {
             setterList = this.#flatter.transform(data);
         }
@@ -78,58 +81,50 @@ class JSONAccessor implements IJSONAccessor {
             setterList = this.#flatter.flat(data);
         }
 
-        let names:string[] = [];
+        let names: string[] = [];
         for (const [key, value] of setterList) {
             names.push(key);
             this.#setData(key, value);
         }
         return names;
     }
-    getOne(key:string):any {
+    getOne(key: string): any {
         this.#ensureNotDropped();
 
-        let value = this.#getData(key); 
-        const typeData = this.explorer?.get(key)
-        
+        let value = this.#getData(key);
         if (value == null) {
-            if (typeData && typeData.default_value != null) {
-                value = typeData.default_value;
-            }
+            value = this.#defaultValueProvider.get(key);
         }
-        
+
         return value;
     }
-    get(...keys:string[]):Record<string,any> {
+    get(...keys: string[]): Record<string, any> {
         this.#ensureNotDropped();
-        
-        const result:Record<string,any> = {};
+
+        const result: Record<string, any> = {};
         for (const key of keys) {
             let value = this.#getData(key);
-
             if (value == null) {
-                const typeData = this.explorer?.get(key)
-                if (typeData && typeData.default_value != null) {
-                    value = typeData.default_value;
-                }
+                value = this.#defaultValueProvider.get(key);
             }
+
             const resolved = resolveNestedRef(result, key, true)!;
             resolved.parent[resolved.key] = value;
         }
-        
         return result;
     }
     getAll() {
         this.#ensureNotDropped();
-        
+
         return structuredClone(this.contents);
     }
-    removeOne(key:string) {
+    removeOne(key: string) {
         this.#ensureNotDropped();
         this.#changed = true;
 
         this.#removeData(key);
     }
-    remove(keys:string[]) {
+    remove(keys: string[]) {
         this.#ensureNotDropped();
         this.#changed = true;
 
@@ -138,28 +133,28 @@ class JSONAccessor implements IJSONAccessor {
         }
     }
 
-    existsOne(key:string) {
+    existsOne(key: string) {
         this.#ensureNotDropped();
-        
+
         const value = this.#getData(key);
         return value !== undefined;
     }
-    exists(keys:string[]) {
+    exists(keys: string[]) {
         this.#ensureNotDropped();
-        
+
         return keys.map((key) => {
             const value = this.#getData(key);
             return value !== undefined;
         });
     }
-    
-    #setData(key:string, value:any) {
+
+    #setData(key: string, value: any) {
         const resolved = resolveNestedRef(this.contents, key, true);
         if (resolved) {
             resolved.parent[resolved.key] = value;
         }
     }
-    #getData(key:string) {
+    #getData(key: string) {
         const resolved = resolveNestedRef(this.contents, key);
         if (resolved) {
             return resolved.parent[resolved.key];
@@ -168,7 +163,7 @@ class JSONAccessor implements IJSONAccessor {
             return undefined;
         }
     }
-    #removeData(key:string) {
+    #removeData(key: string) {
         const resolved = resolveNestedRef(this.contents, key);
         if (resolved) delete resolved.parent[resolved.key];
     }

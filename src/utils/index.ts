@@ -1,4 +1,4 @@
-import { JSONTypeData, JSONTypeNames } from '@/JSONType';
+import { JSONTypeData, JSONTypeNames } from '@/features/JSONType';
 
 function getJSONTypeName(value:string):JSONTypeNames|null {
     if (value === null) 'null';

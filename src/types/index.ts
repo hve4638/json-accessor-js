@@ -1,4 +1,4 @@
-import { JSONTypeLeaf } from '@/JSONType';
+import { JSONTypeLeaf } from '@/features/JSONType';
 
 export type KeyValueInput = [string, any][] | Record<string, any>;
 
