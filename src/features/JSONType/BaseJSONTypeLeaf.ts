@@ -2,7 +2,7 @@ import { TREE_LEAF_FLAG } from 'tree-navigate';
 import { JSON_TYPE_FLAG } from './data';
 import { JSONTypeData, JSONTypeNames } from './types';
 
-class BaseJSONTypeLeaf {
+export class BaseJSONTypeLeaf {
     [TREE_LEAF_FLAG]=true;
     value:JSONTypeData;
 

@@ -5,6 +5,8 @@ import { TREE_LEAF_FLAG } from 'tree-navigate';
 import { JSONTypeData } from './types';
 
 export class ArrayJSONTypeLeaf extends BaseJSONType {
+    readonly __brand: 'array' = 'array';
+
     constructor(element?:JSONTree|BaseJSONType) {
         super('array');
         this.value['strict'] = false;

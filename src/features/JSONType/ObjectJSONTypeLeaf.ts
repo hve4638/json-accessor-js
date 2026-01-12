@@ -3,6 +3,7 @@ import BaseJSONType from './BaseJSONTypeLeaf';
 import { StructJSONTypeData } from './types';
 
 export class StructJSONTypeLeaf extends BaseJSONType {
+    readonly __brand: 'struct' = 'struct';
     declare value:StructJSONTypeData;
 
     constructor(tree?:JSONTree) {
