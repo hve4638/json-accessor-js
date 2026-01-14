@@ -15,6 +15,7 @@ export interface IJSONAccessor {
     getAll():Record<string, any>;
     remove(keys:string[]):void;
     removeOne(key:string):void;
+    replaceOne(key:string, value:any):void;
     exists(keys:string[]):boolean[];
     existsOne(key:string):boolean;
     // pushToArray(items:KeyValueInput):string[];

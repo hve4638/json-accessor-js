@@ -124,6 +124,12 @@ class JSONAccessor implements IJSONAccessor {
 
         this.#removeData(key);
     }
+    replaceOne(key: string, value: any): void {
+        this.#ensureNotDropped();
+
+        this.#removeData(key);
+        this.set([[key, value]]);
+    }
     remove(keys: string[]) {
         this.#ensureNotDropped();
         this.#changed = true;
