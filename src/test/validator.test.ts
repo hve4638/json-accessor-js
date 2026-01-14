@@ -67,6 +67,46 @@ const nestedTree = {
     },
 } satisfies ValidateJSONTree<NestedSchema>;
 
+const nestedStructTree = {
+    user: JSONType.Struct({
+        name: JSONType.String(),
+        age: JSONType.Number(),
+    }),
+} satisfies ValidateJSONTree<NestedSchema>;
+
+// 빈 객체 테스트
+
+interface EmptySchema {
+    user: {};
+}
+
+const emptyTree = {
+    user: {},
+} satisfies ValidateJSONTree<EmptySchema>;
+
+const emptyStructTree = {
+    user: JSONType.Struct(),
+} satisfies ValidateJSONTree<EmptySchema>;
+
+const replaceStructTree = {
+    user: JSONType.Replace(),
+} satisfies ValidateJSONTree<EmptySchema>;
+
+// Replace 타입 테스트
+interface ReplaceSchema {
+    data: {
+        name: string;
+        value: number;
+    };
+}
+
+const replaceTree = {
+    data: JSONType.Replace({
+        name: JSONType.String(),
+        value: JSONType.Number(),
+    }),
+} satisfies ValidateJSONTree<ReplaceSchema>;
+
 // unknown/any 타입 테스트
 interface AnySchema {
     data: unknown;
@@ -126,6 +166,8 @@ describe('ValidateJSONTree', () => {
         expect(unionTree).toBeDefined();
         expect(arrayTree).toBeDefined();
         expect(nestedTree).toBeDefined();
+        expect(nestedStructTree).toBeDefined();
+        expect(replaceTree).toBeDefined();
         expect(anyTree).toBeDefined();
         expect(complexTree).toBeDefined();
     });

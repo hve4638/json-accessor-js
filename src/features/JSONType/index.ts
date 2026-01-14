@@ -6,6 +6,7 @@ import { JSONTree } from '@/types';
 import { JSON_TYPE_FLAG } from './data';
 import { JSONTypeData } from './types';
 import UnionJSONTypeLeaf from './UnionJSONTypeLeaf';
+import type { ReplaceWithTree, SchemaFromTree, StructWithTree } from './validator';
 export type { JSONTypeNames, JSONTypeData } from './types';
 
 export function isJSONTypeData(target: object): target is JSONTypeData {
@@ -16,13 +17,25 @@ export function isJSONTypeData(target: object): target is JSONTypeData {
     );
 }
 
+function Struct<TTree extends JSONTree>(tree: TTree): StructWithTree<SchemaFromTree<TTree>>;
+function Struct(tree?: JSONTree): JSONTypeObject;
+function Struct(tree?: JSONTree) {
+    return new JSONTypeObject(tree);
+}
+
+function Replace<TTree extends JSONTree>(tree: TTree): ReplaceWithTree<SchemaFromTree<TTree>>;
+function Replace(tree?: JSONTree): ReplaceJSONTypeLeaf;
+function Replace(tree?: JSONTree) {
+    return new ReplaceJSONTypeLeaf(tree);
+}
+
 const JSONType = {
     Union: (...candidates: (string | number | boolean | null | undefined | BaseJSONType)[]) => new UnionJSONTypeLeaf(...candidates),
     String: () => new StringJSONTypeLeaf(),
     Number: () => new NumberJSONTypeLeaf(),
     Bool: () => new BooleanJSONTypeLeaf(),
-    Struct: (tree?: JSONTree) => new JSONTypeObject(tree),
-    Replace: (tree?: JSONTree) => new ReplaceJSONTypeLeaf(tree),
+    Struct,
+    Replace,
     Array: (jsonTree?: JSONTree | BaseJSONType) => new JSONTypeArray(jsonTree),
     Any: () => new BaseJSONType('any'),
 };

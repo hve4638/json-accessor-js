@@ -4,6 +4,7 @@ import type {
     BooleanJSONTypeLeaf,
     ArrayJSONTypeLeaf,
     StructJSONTypeLeaf,
+    ReplaceJSONTypeLeaf,
     BaseJSONTypeLeaf,
     UnionJSONTypeLeaf,
 } from './leaf';
@@ -14,6 +15,23 @@ type IsUnion<T, U = T> = T extends U
     : never;
 
 type AnyJSONTypeLeaf = BaseJSONTypeLeaf | UnionJSONTypeLeaf;
+
+export type StructWithTree<T> = StructJSONTypeLeaf & { __tree: JSONTreeFor<T> };
+export type ReplaceWithTree<T> = ReplaceJSONTypeLeaf & { __tree: JSONTreeFor<T> };
+
+export type SchemaFromTree<TTree> = {
+    [K in keyof TTree]:
+        TTree[K] extends StringJSONTypeLeaf ? string :
+        TTree[K] extends NumberJSONTypeLeaf ? number :
+        TTree[K] extends BooleanJSONTypeLeaf ? boolean :
+        TTree[K] extends ArrayJSONTypeLeaf ? unknown[] :
+        TTree[K] extends StructJSONTypeLeaf ? Record<string, unknown> :
+        TTree[K] extends ReplaceJSONTypeLeaf ? Record<string, unknown> :
+        TTree[K] extends BaseJSONTypeLeaf ? unknown :
+        TTree[K] extends UnionJSONTypeLeaf ? unknown :
+        TTree[K] extends Record<string, unknown> ? SchemaFromTree<TTree[K]> :
+        unknown;
+};
 
 /** TypeScript 타입 → 기대되는 JSONType Leaf 추론 */
 type ExpectedJSONTypeLeaf<T> =
@@ -30,7 +48,13 @@ type ExpectedJSONTypeLeafCore<T> =
     T extends (infer U)[] ? ArrayJSONTypeLeaf :
     // 기본 타입이 아닌 union만 AnyJSONTypeLeaf로 처리
     IsUnion<T> extends true ? AnyJSONTypeLeaf :
-    T extends Record<string, unknown> ? StructJSONTypeLeaf | JSONTreeFor<T> :
+    T extends Record<string, unknown>
+        ? string extends keyof T
+            ? StructJSONTypeLeaf | ReplaceJSONTypeLeaf | JSONTreeFor<T>
+            : keyof T extends never
+                ? StructJSONTypeLeaf | ReplaceJSONTypeLeaf | JSONTreeFor<T>
+                : StructWithTree<T> | ReplaceWithTree<T> | JSONTreeFor<T>
+        :
     AnyJSONTypeLeaf;
 
 type JSONTreeFor<T> = {
