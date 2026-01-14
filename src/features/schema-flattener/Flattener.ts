@@ -84,8 +84,8 @@ export class Flattener {
 
             const reached = tracePath.join(DELIMITER);
             const node = this.navigate.get(reached);
-            // 닿을 수 있는 마지막 노드의 타입이 struct, any 라면 허용됨
-            if (!node || (node.type !== 'struct' && node.type !== 'any')) {
+            // 닿을 수 있는 마지막 노드의 타입이 struct, replace, any 라면 허용됨
+            if (!node || (node.type !== 'struct' && node.type !== 'replace' && node.type !== 'any')) {
                 throw new JSONAccessorError(`Field '${key}' is not allowed`);
             }
 
@@ -127,6 +127,10 @@ export class Flattener {
                             prefix: newKey,
                             structData: node,
                         });
+                    }
+                    else if (node.type === 'replace') {
+                        // replace 타입은 평탄화 없이 전체 값 반환 → 항상 덮어쓰기
+                        return [[newKey, value]];
                     }
                     else if (node.type === 'array') {
                         // @TODO : 배열 타입에 대한 세부 처리 필요

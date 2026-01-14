@@ -1,5 +1,5 @@
 import { BooleanJSONTypeLeaf, NumberJSONTypeLeaf, StringJSONTypeLeaf } from './PrimitiveJSONTypeLeaves';
-import { default as JSONTypeObject } from './ObjectJSONTypeLeaf';
+import { default as JSONTypeObject, ReplaceJSONTypeLeaf } from './ObjectJSONTypeLeaf';
 import JSONTypeArray from './ArrayJSONTypeLeaf';
 import BaseJSONType from './BaseJSONTypeLeaf';
 import { JSONTree } from '@/types';
@@ -22,9 +22,10 @@ const JSONType = {
     Number: () => new NumberJSONTypeLeaf(),
     Bool: () => new BooleanJSONTypeLeaf(),
     Struct: (tree?: JSONTree) => new JSONTypeObject(tree),
+    Replace: (tree?: JSONTree) => new ReplaceJSONTypeLeaf(tree),
     Array: (jsonTree?: JSONTree | BaseJSONType) => new JSONTypeArray(jsonTree),
     Any: () => new BaseJSONType('any'),
 };
-export type JSONTypeLeaf = StringJSONTypeLeaf | NumberJSONTypeLeaf | BooleanJSONTypeLeaf | JSONTypeObject | JSONTypeArray | BaseJSONType;
+export type JSONTypeLeaf = StringJSONTypeLeaf | NumberJSONTypeLeaf | BooleanJSONTypeLeaf | JSONTypeObject | ReplaceJSONTypeLeaf | JSONTypeArray | BaseJSONType;
 
 export default JSONType;

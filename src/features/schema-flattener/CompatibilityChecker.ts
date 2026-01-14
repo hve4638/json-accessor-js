@@ -1,7 +1,7 @@
 import TreeNavigate from 'tree-navigate';
 
 import { JSONTypeData } from '@/features/JSONType';
-import { ArrayJSONTypeData, StructJSONTypeData, UnionJSONTypeData } from '@/features/JSONType/types';
+import { ArrayJSONTypeData, StructJSONTypeData, ReplaceJSONTypeData, UnionJSONTypeData } from '@/features/JSONType/types';
 import { IncompatibleTypeError, JSONAccessorError, UnserializableTypeError } from '@/errors';
 
 import { Flattener } from './Flattener';
@@ -73,6 +73,10 @@ class CompatibilityChecker implements ICompatibilityChecker {
                         return true;
                 }
             }
+            // replace 타입은 실제 값이 struct(객체)로 들어옴
+            else if (jsonTypeData.type === 'replace' && targetType === 'struct') {
+                return this.isReplaceCompatible(target as object, jsonTypeData);
+            }
             else {
                 return false;
             }
@@ -95,6 +99,21 @@ class CompatibilityChecker implements ICompatibilityChecker {
         if (!structTypeData.struct) return true;
 
         const navigate = TreeNavigate.from(structTypeData.struct);
+        const flattener = new Flattener(navigate, this);
+        try {
+            flattener.flat({ target: struct, prefix: '' });
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+
+    private isReplaceCompatible(struct: object, replaceTypeData: ReplaceJSONTypeData): boolean {
+        if (!replaceTypeData.strict) return true;
+        if (!replaceTypeData.replace) return true;
+
+        const navigate = TreeNavigate.from(replaceTypeData.replace);
         const flattener = new Flattener(navigate, this);
         try {
             flattener.flat({ target: struct, prefix: '' });

@@ -1,7 +1,7 @@
 import { JSONTree } from "@/types";
 import { JSON_TYPE_FLAG } from "./data";
 
-export type JSONTypeNames = 'string' | 'number' | 'boolean' | 'array' | 'struct' | 'union' | 'any' | 'null';
+export type JSONTypeNames = 'string' | 'number' | 'boolean' | 'array' | 'struct' | 'replace' | 'union' | 'any' | 'null';
 
 type BaseJSONTypeData = {
     [JSON_TYPE_FLAG]: true;
@@ -29,6 +29,14 @@ export type StructJSONTypeData = {
     nullable: boolean,
     default_value: unknown,
 }
+export type ReplaceJSONTypeData = {
+    type: 'replace',
+    replace?: JSONTree,
+
+    strict: boolean,
+    nullable: boolean,
+    default_value: unknown,
+}
 export type UnionJSONTypeData = BaseJSONTypeData & {
     type: 'union',
     candidates: (JSONTypeData | string | number | boolean)[],
@@ -36,4 +44,4 @@ export type UnionJSONTypeData = BaseJSONTypeData & {
     default_value: unknown,
 }
 
-export type JSONTypeData = PrimitiveJSONTypeData | ArrayJSONTypeData | StructJSONTypeData | UnionJSONTypeData;
+export type JSONTypeData = PrimitiveJSONTypeData | ArrayJSONTypeData | StructJSONTypeData | ReplaceJSONTypeData | UnionJSONTypeData;

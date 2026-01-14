@@ -269,7 +269,7 @@ describe('JSONAccessor : setOne consistency check', () => {
 
 describe('JSONAccessor : default_value', () => {
     let accessor:MemJSONAccessor;
-    
+
     beforeEach(() => {
         accessor = new MemJSONAccessor({
             number : JSONType.Number(),
@@ -285,5 +285,142 @@ describe('JSONAccessor : default_value', () => {
         expect(accessor.getOne('numberD')).toEqual(1);
         expect(accessor.getOne('numberND')).toEqual(1);
 
+    });
+});
+
+describe('JSONAccessor : Replace type', () => {
+    test('Replace() - set overwrites entire object (no merge)', () => {
+        const accessor = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+
+        // set으로 데이터 설정
+        accessor.set({ data: { a: 1, b: 2 } });
+        expect(accessor.getOne('data')).toEqual({ a: 1, b: 2 });
+
+        // set으로 다시 설정 - 덮어쓰기 (머지 아님)
+        accessor.set({ data: { x: 10 } });
+        expect(accessor.getOne('data')).toEqual({ x: 10 });
+    });
+
+    test('Replace() - setOne overwrites entire object (no merge)', () => {
+        const accessor = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+
+        // setOne으로 데이터 설정
+        accessor.setOne('data', { a: 1, b: 2 });
+        expect(accessor.getOne('data')).toEqual({ a: 1, b: 2 });
+
+        // setOne으로 다시 설정 - 덮어쓰기
+        accessor.setOne('data', { x: 10 });
+        expect(accessor.getOne('data')).toEqual({ x: 10 });
+    });
+
+    test('Replace() - set and setOne behave consistently', () => {
+        // set 테스트
+        const accessor1 = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+        accessor1.set({ data: { a: 1, b: 2 } });
+        accessor1.set({ data: { x: 10 } });
+        const setResult = accessor1.getOne('data');
+
+        // setOne 테스트
+        const accessor2 = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+        accessor2.setOne('data', { a: 1, b: 2 });
+        accessor2.setOne('data', { x: 10 });
+        const setOneResult = accessor2.getOne('data');
+
+        // 둘 다 동일한 결과 (덮어쓰기)
+        expect(setResult).toEqual({ x: 10 });
+        expect(setOneResult).toEqual({ x: 10 });
+        expect(setResult).toEqual(setOneResult);
+    });
+
+    test('Replace(tree) - set overwrites with schema validation', () => {
+        const accessor = new MemJSONAccessor({
+            data: JSONType.Replace({
+                name: JSONType.String(),
+                value: JSONType.Number(),
+            })
+        });
+
+        accessor.set({ data: { name: 'test', value: 1 } });
+        expect(accessor.getOne('data')).toEqual({ name: 'test', value: 1 });
+
+        // 덮어쓰기
+        accessor.set({ data: { name: 'updated' } });
+        expect(accessor.getOne('data')).toEqual({ name: 'updated' });
+    });
+
+    test('Replace(tree) - setOne overwrites with schema validation', () => {
+        const accessor = new MemJSONAccessor({
+            data: JSONType.Replace({
+                name: JSONType.String(),
+                value: JSONType.Number(),
+            })
+        });
+
+        accessor.setOne('data', { name: 'test', value: 1 });
+        expect(accessor.getOne('data')).toEqual({ name: 'test', value: 1 });
+
+        // 덮어쓰기
+        accessor.setOne('data', { name: 'updated' });
+        expect(accessor.getOne('data')).toEqual({ name: 'updated' });
+    });
+
+    test('Replace vs Struct - behavior comparison', () => {
+        // Struct: set은 머지, setOne은 대체
+        const structAccessor = new MemJSONAccessor({
+            data: JSONType.Struct()
+        });
+        structAccessor.set({ data: { a: 1, b: 2 } });
+        structAccessor.set({ data: { x: 10 } });
+        const structSetResult = structAccessor.getOne('data');
+
+        // Replace: set도 대체, setOne도 대체
+        const replaceAccessor = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+        replaceAccessor.set({ data: { a: 1, b: 2 } });
+        replaceAccessor.set({ data: { x: 10 } });
+        const replaceSetResult = replaceAccessor.getOne('data');
+
+        // Struct의 set은 머지됨
+        expect(structSetResult).toEqual({ a: 1, b: 2, x: 10 });
+
+        // Replace의 set은 덮어쓰기
+        expect(replaceSetResult).toEqual({ x: 10 });
+    });
+
+    test('Replace - nested path access', () => {
+        const accessor = new MemJSONAccessor({
+            nested: {
+                item: JSONType.Replace()
+            }
+        });
+
+        accessor.setOne('nested.item', { old: 'value', keep: false });
+        expect(accessor.getOne('nested.item')).toEqual({ old: 'value', keep: false });
+
+        accessor.setOne('nested.item', { new: 'data' });
+        expect(accessor.getOne('nested.item')).toEqual({ new: 'data' });
+    });
+
+    test('Replace - sub-path access within Replace type', () => {
+        const accessor = new MemJSONAccessor({
+            data: JSONType.Replace()
+        });
+
+        // Replace 타입 내부 경로에 직접 접근
+        accessor.setOne('data.nested.value', 123);
+        expect(accessor.getOne('data')).toEqual({ nested: { value: 123 } });
+
+        // 다시 전체 대체
+        accessor.setOne('data', { completely: 'new' });
+        expect(accessor.getOne('data')).toEqual({ completely: 'new' });
     });
 });

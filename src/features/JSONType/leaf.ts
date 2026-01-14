@@ -3,7 +3,7 @@ export type {
     NumberJSONTypeLeaf,
     StringJSONTypeLeaf
 } from './PrimitiveJSONTypeLeaves';
-export type { StructJSONTypeLeaf } from './ObjectJSONTypeLeaf';
+export type { StructJSONTypeLeaf, ReplaceJSONTypeLeaf } from './ObjectJSONTypeLeaf';
 export type { ArrayJSONTypeLeaf } from './ArrayJSONTypeLeaf';
 export type { BaseJSONTypeLeaf } from './BaseJSONTypeLeaf';
 export type { UnionJSONTypeLeaf } from './UnionJSONTypeLeaf';
